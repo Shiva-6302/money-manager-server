@@ -1,6 +1,6 @@
 # Money Manager - Backend API
 
-This is the Node.js/Express backend for the Money Manager application, designed for the GUVI/HCL Hackathon.
+This is the Node.js/Express backend for the Money Manager application
 
 ## 🛠️ Tech Stack
 - **Node.js & Express**: Server framework
