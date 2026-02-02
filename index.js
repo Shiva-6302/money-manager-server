@@ -6,7 +6,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect('YOUR_MONGODB_URI_HERE');
+// FIXED LINE 9: Hardcoded your actual URI so Render can see it directly
+const MONGO_URI = 'mongodb+srv://shiva_admin:shivaganesh@cluster0.blj2mg1.mongodb.net/money_manager?retryWrites=true&w=majority';
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 const transactionSchema = new mongoose.Schema({
   title: String,
@@ -23,25 +28,20 @@ app.get('/api/transactions', async (req, res) => {
   try {
     const { division, type, search, startDate, endDate } = req.query;
     let query = {};
-
     if (division && division !== 'All') query.division = division;
     if (type && type !== 'All') query.type = type;
-
-    // Fixed search logic
     if (search && search.trim() !== '') {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { category: { $regex: search, $options: 'i' } }
       ];
     }
-
     if (startDate && endDate) {
       query.date = { 
         $gte: new Date(startDate), 
         $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)) 
       };
     }
-
     const transactions = await Transaction.find(query).sort({ date: -1 });
     res.json(transactions);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -78,4 +78,6 @@ app.post('/api/transactions/transfer', async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-app.listen(5000, () => console.log('Server running on 5000'));
+// FIXED LINE 68: Added process.env.PORT so Render can bind correctly
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
